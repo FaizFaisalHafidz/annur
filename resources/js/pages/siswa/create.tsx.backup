@@ -1,0 +1,504 @@
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Textarea } from '@/components/ui/textarea';
+import AppLayout from '@/layouts/app-layout';
+import { SharedData } from '@/types';
+import { Head, Link, router } from '@inertiajs/react';
+import { ArrowLeft, Save } from 'lucide-react';
+import { useState } from 'react';
+import { toast } from 'sonner';
+
+interface Props extends SharedData {
+  kelasList: string[];
+  agamaList: string[];
+}
+
+const CreateSiswa = ({ auth, kelasList, agamaList }: Props) => {
+  const [loading, setLoading] = useState(false);
+  const [activeTab, setActiveTab] = useState('data-pribadi');
+  const [formData, setFormData] = useState({
+    nomor_induk: '',
+    nisn: '',
+    nama_lengkap: '',
+    jenis_kelamin: '',
+    tempat_lahir: '',
+    tanggal_lahir: '',
+    agama: '',
+    anak_ke: '',
+    status_dalam_keluarga: 'ANAK KANDUNG',
+    alamat: '',
+    kelas: '',
+    tanggal_diterima: '',
+    semester_diterima: '1',
+    asal_sekolah: '',
+    alamat_asal_sekolah: '',
+    tahun_ijazah: '',
+    nomor_ijazah: '',
+    tahun_sttb: '',
+    nomor_sttb: '',
+    nama_ayah: '',
+    nama_ibu: '',
+    alamat_orang_tua: '',
+    pekerjaan_ayah: '',
+    pekerjaan_ibu: '',
+    nama_wali: '',
+    alamat_wali: '',
+    pekerjaan_wali: '',
+    nomor_telepon_ayah: '',
+    nomor_telepon_ibu: '',
+    nomor_telepon_wali: '',
+  });
+
+  // State untuk Nilai Akademik
+  const [nilaiAkademik, setNilaiAkademik] = useState({
+    tahun_ajaran: '2024/2025',
+    kelas: '',
+    // Semester 1
+    pabp_sem1: '',
+    ppkn_sem1: '',
+    bahasa_indonesia_sem1: '',
+    matematika_wajib_sem1: '',
+    sejarah_indonesia_sem1: '',
+    bahasa_inggris_sem1: '',
+    seni_budaya_sem1: '',
+    pjok_sem1: '',
+    prakarya_sem1: '',
+    bahasa_sunda_sem1: '',
+    geografi_sem1: '',
+    sejarah_sem1: '',
+    sosiologi_sem1: '',
+    ekonomi_sem1: '',
+    bahasa_arab_sem1: '',
+    ilmu_akhlak_sem1: '',
+    // Semester 2
+    pabp_sem2: '',
+    ppkn_sem2: '',
+    bahasa_indonesia_sem2: '',
+    matematika_wajib_sem2: '',
+    sejarah_indonesia_sem2: '',
+    bahasa_inggris_sem2: '',
+    seni_budaya_sem2: '',
+    pjok_sem2: '',
+    prakarya_sem2: '',
+    bahasa_sunda_sem2: '',
+    geografi_sem2: '',
+    sejarah_sem2: '',
+    sosiologi_sem2: '',
+    ekonomi_sem2: '',
+    bahasa_arab_sem2: '',
+    ilmu_akhlak_sem2: '',
+  });
+
+  // State untuk Survei Minat Bakat
+  const [surveiMinatBakat, setSurveiMinatBakat] = useState({
+    mata_pelajaran_diminati: [] as string[],
+    alasan_minat_mapel: '',
+    rencana_kuliah: '',
+    jurusan_diminati: '',
+    alasan_pilih_jurusan: '',
+    kategori_jurusan: '',
+    tahu_universitas: '',
+    ekstrakurikuler: '',
+    ekstrakurikuler_pengaruh: '',
+    pengaruh_keputusan: '',
+    pernah_tes_minat: '',
+    tingkat_keyakinan: 3,
+  });
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+
+    // Gabungkan semua data
+    const completeData = {
+      ...formData,
+      nilai_akademik: nilaiAkademik,
+      survei_minat_bakat: surveiMinatBakat
+    };
+
+    router.post('/siswa', completeData, {
+      onSuccess: () => {
+        toast.success('Data siswa lengkap berhasil ditambahkan');
+      },
+      onError: (errors) => {
+        toast.error('Gagal menambahkan data siswa');
+        console.log(errors);
+      },
+      onFinish: () => {
+        setLoading(false);
+      }
+    });
+  };
+
+  const handleInputChange = (field: string, value: string) => {
+    setFormData(prev => ({
+      ...prev,
+      [field]: value
+    }));
+  };
+
+  const handleNilaiChange = (field: string, value: string) => {
+    setNilaiAkademik(prev => ({
+      ...prev,
+      [field]: value,
+      kelas: formData.kelas // Sinkronkan kelas
+    }));
+  };
+
+  const handleSurveiChange = (field: string, value: any) => {
+    setSurveiMinatBakat(prev => ({
+      ...prev,
+      [field]: value
+    }));
+  };
+
+  const handleMataPelajaranDiminati = (mapel: string, checked: boolean) => {
+    setSurveiMinatBakat(prev => ({
+      ...prev,
+      mata_pelajaran_diminati: checked 
+        ? [...prev.mata_pelajaran_diminati, mapel]
+        : prev.mata_pelajaran_diminati.filter(m => m !== mapel)
+    }));
+  };
+
+  return (
+    <AppLayout>
+      <Head title="Tambah Data Siswa Lengkap" />
+      
+      <div className="py-6">
+        <div className="max-w-6xl mx-auto sm:px-6 lg:px-8">
+          <div className="mb-8">
+            <div className="flex items-center justify-between">
+              <div>
+                <h1 className="text-3xl font-bold text-gray-900">Tambah Data Siswa Lengkap</h1>
+                <p className="mt-2 text-gray-600">
+                  Tambahkan data siswa beserta nilai akademik dan survei minat bakat untuk prediksi KNN
+                </p>
+              </div>
+              <Link
+                href="/siswa"
+                className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
+              >
+                <ArrowLeft className="h-4 w-4 mr-2" />
+                Kembali
+              </Link>
+            </div>
+          </div>
+
+          <form onSubmit={handleSubmit} className="space-y-8">
+            <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+              <TabsList className="grid w-full grid-cols-3">
+                <TabsTrigger value="data-pribadi" className="flex items-center">
+                  <User className="w-4 h-4 mr-2" />
+                  Data Pribadi
+                </TabsTrigger>
+                <TabsTrigger value="nilai-akademik" className="flex items-center">
+                  <BookOpen className="w-4 h-4 mr-2" />
+                  Nilai Akademik
+                </TabsTrigger>
+                <TabsTrigger value="survei-minat" className="flex items-center">
+                  <Target className="w-4 h-4 mr-2" />
+                  Survei Minat & Bakat
+                </TabsTrigger>
+              </TabsList>
+
+              {/* Tab Content: Data Pribadi */}
+              <TabsContent value="data-pribadi">
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Data Identitas Siswa</CardTitle>
+                    <CardDescription>
+                      Isi data pribadi dan identitas siswa dengan lengkap
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+              <div className="p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <Label htmlFor="nomor_induk">Nomor Induk *</Label>
+                  <Input
+                    id="nomor_induk"
+                    value={formData.nomor_induk}
+                    onChange={(e) => handleInputChange('nomor_induk', e.target.value)}
+                    required
+                    placeholder="Contoh: 2223.10.001"
+                  />
+                </div>
+                
+                <div>
+                  <Label htmlFor="nisn">NISN *</Label>
+                  <Input
+                    id="nisn"
+                    value={formData.nisn}
+                    onChange={(e) => handleInputChange('nisn', e.target.value)}
+                    required
+                    placeholder="Contoh: 0064018351"
+                  />
+                </div>
+
+                <div className="md:col-span-2">
+                  <Label htmlFor="nama_lengkap">Nama Lengkap *</Label>
+                  <Input
+                    id="nama_lengkap"
+                    value={formData.nama_lengkap}
+                    onChange={(e) => handleInputChange('nama_lengkap', e.target.value)}
+                    required
+                    placeholder="Nama lengkap siswa"
+                  />
+                </div>
+
+                <div>
+                  <Label htmlFor="jenis_kelamin">Jenis Kelamin *</Label>
+                  <Select value={formData.jenis_kelamin} onValueChange={(value) => handleInputChange('jenis_kelamin', value)}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Pilih jenis kelamin" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Laki-laki">Laki-laki</SelectItem>
+                      <SelectItem value="Perempuan">Perempuan</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div>
+                  <Label htmlFor="tempat_lahir">Tempat Lahir *</Label>
+                  <Input
+                    id="tempat_lahir"
+                    value={formData.tempat_lahir}
+                    onChange={(e) => handleInputChange('tempat_lahir', e.target.value)}
+                    required
+                    placeholder="Kota tempat lahir"
+                  />
+                </div>
+
+                <div>
+                  <Label htmlFor="tanggal_lahir">Tanggal Lahir *</Label>
+                  <Input
+                    id="tanggal_lahir"
+                    type="date"
+                    value={formData.tanggal_lahir}
+                    onChange={(e) => handleInputChange('tanggal_lahir', e.target.value)}
+                    required
+                  />
+                </div>
+
+                <div>
+                  <Label htmlFor="agama">Agama *</Label>
+                  <Select value={formData.agama} onValueChange={(value) => handleInputChange('agama', value)}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Pilih agama" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {agamaList.map((agama) => (
+                        <SelectItem key={agama} value={agama}>{agama}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div>
+                  <Label htmlFor="anak_ke">Anak Ke-</Label>
+                  <Input
+                    id="anak_ke"
+                    type="number"
+                    value={formData.anak_ke}
+                    onChange={(e) => handleInputChange('anak_ke', e.target.value)}
+                    placeholder="1"
+                    min="1"
+                  />
+                </div>
+
+                <div>
+                  <Label htmlFor="status_dalam_keluarga">Status dalam Keluarga *</Label>
+                  <Input
+                    id="status_dalam_keluarga"
+                    value={formData.status_dalam_keluarga}
+                    onChange={(e) => handleInputChange('status_dalam_keluarga', e.target.value)}
+                    required
+                  />
+                </div>
+
+                <div className="md:col-span-2">
+                  <Label htmlFor="alamat">Alamat *</Label>
+                  <Textarea
+                    id="alamat"
+                    value={formData.alamat}
+                    onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => handleInputChange('alamat', e.target.value)}
+                    required
+                    placeholder="Alamat lengkap siswa"
+                    rows={3}
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Data Sekolah */}
+            <div className="bg-white shadow-sm rounded-lg border">
+              <div className="px-6 py-4 border-b border-gray-200">
+                <h2 className="text-lg font-semibold text-gray-900">Data Sekolah</h2>
+              </div>
+              <div className="p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <Label htmlFor="kelas">Kelas *</Label>
+                  <Select value={formData.kelas} onValueChange={(value) => handleInputChange('kelas', value)}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Pilih kelas" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {kelasList.map((kelas) => (
+                        <SelectItem key={kelas} value={kelas}>{kelas}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div>
+                  <Label htmlFor="tanggal_diterima">Tanggal Diterima *</Label>
+                  <Input
+                    id="tanggal_diterima"
+                    type="date"
+                    value={formData.tanggal_diterima}
+                    onChange={(e) => handleInputChange('tanggal_diterima', e.target.value)}
+                    required
+                  />
+                </div>
+
+                <div>
+                  <Label htmlFor="semester_diterima">Semester Diterima *</Label>
+                  <Select value={formData.semester_diterima} onValueChange={(value) => handleInputChange('semester_diterima', value)}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Pilih semester" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="1">Semester 1</SelectItem>
+                      <SelectItem value="2">Semester 2</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div>
+                  <Label htmlFor="asal_sekolah">Asal Sekolah</Label>
+                  <Input
+                    id="asal_sekolah"
+                    value={formData.asal_sekolah}
+                    onChange={(e) => handleInputChange('asal_sekolah', e.target.value)}
+                    placeholder="Nama sekolah asal"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Data Orang Tua */}
+            <div className="bg-white shadow-sm rounded-lg border">
+              <div className="px-6 py-4 border-b border-gray-200">
+                <h2 className="text-lg font-semibold text-gray-900">Data Orang Tua/Wali</h2>
+              </div>
+              <div className="p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <Label htmlFor="nama_ayah">Nama Ayah *</Label>
+                  <Input
+                    id="nama_ayah"
+                    value={formData.nama_ayah}
+                    onChange={(e) => handleInputChange('nama_ayah', e.target.value)}
+                    required
+                    placeholder="Nama lengkap ayah"
+                  />
+                </div>
+
+                <div>
+                  <Label htmlFor="nama_ibu">Nama Ibu *</Label>
+                  <Input
+                    id="nama_ibu"
+                    value={formData.nama_ibu}
+                    onChange={(e) => handleInputChange('nama_ibu', e.target.value)}
+                    required
+                    placeholder="Nama lengkap ibu"
+                  />
+                </div>
+
+                <div>
+                  <Label htmlFor="pekerjaan_ayah">Pekerjaan Ayah *</Label>
+                  <Input
+                    id="pekerjaan_ayah"
+                    value={formData.pekerjaan_ayah}
+                    onChange={(e) => handleInputChange('pekerjaan_ayah', e.target.value)}
+                    required
+                    placeholder="Pekerjaan ayah"
+                  />
+                </div>
+
+                <div>
+                  <Label htmlFor="pekerjaan_ibu">Pekerjaan Ibu *</Label>
+                  <Input
+                    id="pekerjaan_ibu"
+                    value={formData.pekerjaan_ibu}
+                    onChange={(e) => handleInputChange('pekerjaan_ibu', e.target.value)}
+                    required
+                    placeholder="Pekerjaan ibu"
+                  />
+                </div>
+
+                <div>
+                  <Label htmlFor="nomor_telepon_ayah">No. Telepon Ayah</Label>
+                  <Input
+                    id="nomor_telepon_ayah"
+                    value={formData.nomor_telepon_ayah}
+                    onChange={(e) => handleInputChange('nomor_telepon_ayah', e.target.value)}
+                    placeholder="08xxxxxxxxxx"
+                  />
+                </div>
+
+                <div>
+                  <Label htmlFor="nomor_telepon_ibu">No. Telepon Ibu</Label>
+                  <Input
+                    id="nomor_telepon_ibu"
+                    value={formData.nomor_telepon_ibu}
+                    onChange={(e) => handleInputChange('nomor_telepon_ibu', e.target.value)}
+                    placeholder="08xxxxxxxxxx"
+                  />
+                </div>
+
+                <div className="md:col-span-2">
+                  <Label htmlFor="alamat_orang_tua">Alamat Orang Tua *</Label>
+                  <Textarea
+                    id="alamat_orang_tua"
+                    value={formData.alamat_orang_tua}
+                    onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => handleInputChange('alamat_orang_tua', e.target.value)}
+                    required
+                    placeholder="Alamat lengkap orang tua"
+                    rows={3}
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div className="flex justify-end space-x-3">
+              <Link
+                href="/siswa"
+                className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
+              >
+                Batal
+              </Link>
+              <Button type="submit" disabled={loading} className="bg-green-800 hover:bg-green-900">
+                {loading ? (
+                  <>
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                    Menyimpan...
+                  </>
+                ) : (
+                  <>
+                    <Save className="h-4 w-4 mr-2" />
+                    Simpan
+                  </>
+                )}
+              </Button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </AppLayout>
+  );
+};
+
+export default CreateSiswa;

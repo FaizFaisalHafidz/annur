@@ -1,0 +1,43 @@
+nama_lengkap,jenis_kelamin,matematika,fisika,kimia,biologi,b_indonesia,b_inggris,sejarah,geografi,informatika,seni_budaya,minat_ipa,minat_ips,minat_bahasa,minat_seni,kategori_jurusan,jurusan_aktual
+Koseng,Perempuan,1,1,1,1,1,1,1,1,1,0,0.8,0.7,0.6,0.5,Sains & Teknologi,Teknik Informatika
+Andini Nurul Khoirunnisaa,Perempuan,1,0,1,0,1,1,0,0,0,0,0.5,0.3,0.8,0.2,Pendidikan & Keguruan,Pendidikan Bahasa Indonesia
+Nadhiska Naila Arsy,Perempuan,1,0,0,1,0,1,0,0,1,0,0.7,0.2,0.4,0.8,Sains & Teknologi,Desain Komunikasi Visual (DKV)
+Rio Oktiandi Rivaldo,Laki-laki,0,0,0,0,0,1,0,0,1,0,0.9,0.1,0.7,0.3,Sains & Teknologi,Teknik Informatika
+Raisya Novita Putri,Perempuan,0,0,0,1,0,0,0,0,0,0,0.4,0.8,0.3,0.2,Ekonomi dan Bisnis,Manajemen
+Nunun Raihanun,Perempuan,0,0,0,1,0,0,0,0,0,0,0.3,0.2,0.4,0.9,Seni & Design,Fashion Design
+JAHRA RAHMAH NAZIHAH,Perempuan,0,0,0,1,0,0,0,0,0,0,0.6,0.3,0.4,0.7,Seni & Design,Tata Boga
+Marsha Alfia Mardiani,Perempuan,0,0,1,1,0,0,0,0,0,0,0.8,0.2,0.3,0.4,Kedokteran & Kesehatan,Keperawatan
+SIFA NUR PADILAH,Perempuan,0,0,0,1,0,0,0,0,0,0,0.4,0.8,0.3,0.2,Ekonomi dan Bisnis,Manajemen
+NITA DESILAWATI,Perempuan,0,0,1,1,0,0,0,0,0,0,0.8,0.2,0.3,0.4,Kedokteran & Kesehatan,Keperawatan
+Alifia Salsabila,Perempuan,1,0,0,0,0,1,0,0,1,0,0.8,0.1,0.6,0.3,Sains & Teknologi,Teknik Informatika
+Murni Delian Julianie,Perempuan,0,0,0,0,0,0,1,0,0,0,0.2,0.7,0.5,0.3,Ekonomi dan Bisnis,Manajemen
+Herdi,Laki-laki,0,1,0,1,0,0,0,0,1,0,0.7,0.3,0.2,0.4,Sains & Teknologi,Teknik Sipil
+Nurul Rachmat Januar,Laki-laki,1,1,1,0,0,0,0,0,0,0,0.9,0.1,0.2,0.1,Sains & Teknologi,Teknik Pertambangan
+Hilma Husna K,Perempuan,0,0,0,1,0,0,0,0,0,0,0.7,0.2,0.3,0.4,Kedokteran & Kesehatan,Keperawatan
+Cahaya Maulani,Perempuan,0,0,0,1,0,0,1,1,1,0,0.5,0.6,0.4,0.3,Ilmu Sosial & Politik,Ilmu Komunikasi
+Archie Ahmad Faadihillah,Laki-laki,0,0,0,0,0,1,0,0,0,1,0.2,0.1,0.6,0.9,Seni & Design,Desain Komunikasi Visual (DKV)
+Bintang Cahyani,Perempuan,1,0,0,0,0,0,0,0,0,0,0.4,0.6,0.5,0.3,Ilmu Sosial & Politik,Ilmu Komunikasi
+Junnita Awaliyyah,Perempuan,0,0,0,1,0,0,0,0,0,0,0.4,0.8,0.3,0.2,Ekonomi dan Bisnis,Manajemen
+Khaila Nur Hazimah,Perempuan,0,0,0,1,0,0,0,0,0,0,0.6,0.3,0.4,0.5,Pertanian & Kehutanan,Kehutanan
+Sifa Azahra,Perempuan,0,0,0,1,0,0,0,0,0,0,0.7,0.3,0.4,0.2,Pertanian & Kehutanan,Agroteknologi
+N.Nazua Nur Azkia,Perempuan,0,0,0,1,1,0,1,0,0,0,0.4,0.5,0.6,0.8,Seni & Design,Seni Rupa
+Putri Amelya Fuzi Lestari,Perempuan,1,1,0,1,0,0,0,0,0,0,0.7,0.4,0.3,0.2,Ekonomi dan Bisnis,Manajemen
+Akhmaludin Ihsani,Laki-laki,0,1,0,0,0,0,0,0,0,0,0.8,0.2,0.3,0.4,Sains & Teknologi,Teknik Industri
+Siti Sumiyah Kurniasih,Perempuan,0,0,0,1,0,0,1,0,0,0,0.3,0.4,0.5,0.7,Seni & Design,Tata Boga
+Robby Santika,Laki-laki,0,0,0,1,0,0,1,0,0,0,0.6,0.4,0.3,0.2,Keolahragaan,Pendidikan Jasmani dan Kesehatan
+Mila Apilia,Perempuan,0,0,0,0,1,0,0,0,0,0,0.2,0.3,0.9,0.4,Bahasa & Sastra,Pendidikan Bahasa Indonesia
+Salma Anindya Rahma,Perempuan,1,0,1,1,0,0,0,0,0,0,0.8,0.2,0.4,0.5,Sains & Teknologi,Teknologi Pangan
+MUHAMMAD FADHLAN NUR,Laki-laki,0,0,0,0,0,1,1,0,0,0,0.5,0.6,0.7,0.2,Sains & Teknologi,Teknik Pertambangan
+Saskia Bintang Rahmani,Perempuan,1,0,0,1,0,0,0,0,0,0,0.7,0.3,0.4,0.2,Pendidikan & Keguruan,Pendidikan IPA
+Listi Nurul Aini Ramasaba,Perempuan,0,0,0,1,0,0,1,0,0,0,0.6,0.4,0.5,0.3,Sains & Teknologi,Teknik Geologi
+Zaky Adithiya Akram,Laki-laki,1,1,1,0,0,0,0,0,0,0,0.8,0.2,0.3,0.1,Ekonomi dan Bisnis,Manajemen
+Fathir Ezra Fidrian,Laki-laki,0,0,0,0,0,1,0,0,0,0,0.6,0.3,0.7,0.2,Kedokteran & Kesehatan,Farmasi
+Rasya Mujib Karim,Laki-laki,0,0,0,0,0,1,0,0,0,0,0.3,0.7,0.8,0.4,Ilmu Sosial & Politik,Arkeologi
+Nabilla Zahra Zibrani,Perempuan,1,0,0,0,0,1,0,0,0,0,0.6,0.4,0.7,0.3,Sains & Teknologi,Teknik Geologi
+Nazwa Ayu Andinna,Perempuan,0,1,0,0,0,0,0,0,1,0,0.6,0.7,0.4,0.3,Ekonomi dan Bisnis,Manajemen
+MARSYA NUR ALIFAH,Perempuan,1,0,1,0,0,0,0,0,0,0,0.5,0.3,0.4,0.2,Pendidikan & Keguruan,Pendidikan Agama Islam (PAI)
+Andri,Laki-laki,0,1,0,0,0,0,0,0,0,0,0.8,0.2,0.3,0.1,Sains & Teknologi,Teknik Pertambangan
+Bilqis Safunatussania,Perempuan,0,0,1,1,0,0,0,0,0,0,0.8,0.2,0.3,0.4,Kedokteran & Kesehatan,Kebidanan
+Nadia Fega,Perempuan,1,0,1,0,0,0,0,0,0,0,0.7,0.2,0.4,0.3,Sains & Teknologi,Farmasi
+Kelvin Ravelino,Laki-laki,0,0,0,0,0,0,0,0,0,1,0.3,0.2,0.4,0.8,Keolahragaan,Pendidikan Jasmani dan Kesehatan
+Hasna Hulyatun Nisa,Perempuan,0,0,0,1,0,0,0,0,0,0,0.4,0.3,0.5,0.8,Seni & Design,Tata Boga
