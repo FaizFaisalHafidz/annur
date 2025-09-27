@@ -42,14 +42,14 @@ class RolePermissionSeeder extends Seeder
         // Create default users
         $adminUser = User::create([
             'name' => 'Super Admin',
-            'email' => 'admin@matemannur.sch.id',
+            'email' => 'superadmin@gmail.com',
             'password' => Hash::make('password'),
             'email_verified_at' => now(),
         ]);
 
         $guruUser = User::create([
             'name' => 'Guru BK',
-            'email' => 'gurubk@matemannur.sch.id',
+            'email' => 'annur@gmail.com',
             'password' => Hash::make('password'),
             'email_verified_at' => now(),
         ]);
