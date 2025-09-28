@@ -458,17 +458,17 @@ class PrediksiKNNController extends Controller
             $json_data = json_encode($data, JSON_UNESCAPED_UNICODE);
             Log::info('JSON data prepared', ['json_length' => strlen($json_data)]);
             
-            // Jalankan script Python dengan virtual environment
-            if (app()->environment('production')) {
-                // Production environment - use virtual environment
-                $command = "cd " . escapeshellarg($python_path) . " && source .venv/bin/activate && python predict_silent.py " . escapeshellarg($json_data);
+            // Jalankan script Python - prioritas: venv python > system python3
+            $python_executable = $python_path . '/.venv/bin/python';
+            
+            if (file_exists($python_executable)) {
+                // Gunakan Python dari virtual environment
+                $command = "cd " . escapeshellarg($python_path) . " && " . escapeshellarg($python_executable) . " predict_silent.py " . escapeshellarg($json_data);
+                Log::info('Using virtual environment Python', ['python_executable' => $python_executable]);
             } else {
-                // Local environment - use virtual environment if exists, fallback to system python
-                if ($venv_exists) {
-                    $command = "cd " . escapeshellarg($python_path) . " && source .venv/bin/activate && python predict_silent.py " . escapeshellarg($json_data);
-                } else {
-                    $command = "cd " . escapeshellarg($python_path) . " && python3 predict_silent.py " . escapeshellarg($json_data);
-                }
+                // Fallback ke system Python3
+                $command = "cd " . escapeshellarg($python_path) . " && python3 predict_silent.py " . escapeshellarg($json_data);
+                Log::info('Using system Python3', ['fallback' => true]);
             }
             
             Log::info('Executing Python command', ['command' => $command]);
