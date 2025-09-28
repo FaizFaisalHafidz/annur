@@ -428,16 +428,35 @@ class PrediksiKNNController extends Controller
             $python_path = base_path('python');
             $script_path = $python_path . '/predict_silent.py';
             
+            Log::info('Python prediction started', [
+                'python_path' => $python_path,
+                'script_path' => $script_path,
+                'environment' => app()->environment(),
+                'input_data_keys' => array_keys($data)
+            ]);
+            
             // Pastikan script Python ada
             if (!file_exists($script_path)) {
+                Log::error('Python script not found', ['script_path' => $script_path]);
                 return [
                     'success' => false,
                     'error' => 'Script prediksi Python tidak ditemukan'
                 ];
             }
 
+            // Check virtual environment
+            $venv_activate_path = $python_path . '/.venv/bin/activate';
+            $venv_exists = file_exists($venv_activate_path);
+            
+            Log::info('Virtual environment check', [
+                'venv_path' => $venv_activate_path,
+                'venv_exists' => $venv_exists,
+                'is_production' => app()->environment('production')
+            ]);
+
             // Encode data sebagai JSON
             $json_data = json_encode($data, JSON_UNESCAPED_UNICODE);
+            Log::info('JSON data prepared', ['json_length' => strlen($json_data)]);
             
             // Jalankan script Python dengan virtual environment
             if (app()->environment('production')) {
@@ -445,37 +464,66 @@ class PrediksiKNNController extends Controller
                 $command = "cd " . escapeshellarg($python_path) . " && source .venv/bin/activate && python predict_silent.py " . escapeshellarg($json_data);
             } else {
                 // Local environment - use virtual environment if exists, fallback to system python
-                if (file_exists($python_path . '/.venv/bin/activate')) {
+                if ($venv_exists) {
                     $command = "cd " . escapeshellarg($python_path) . " && source .venv/bin/activate && python predict_silent.py " . escapeshellarg($json_data);
                 } else {
                     $command = "cd " . escapeshellarg($python_path) . " && python3 predict_silent.py " . escapeshellarg($json_data);
                 }
             }
             
+            Log::info('Executing Python command', ['command' => $command]);
+            
+            $start_time = microtime(true);
             $output = shell_exec($command . " 2>&1");
+            $execution_time = microtime(true) - $start_time;
+            
+            Log::info('Python execution completed', [
+                'execution_time' => $execution_time,
+                'output_length' => $output ? strlen($output) : 0,
+                'output_preview' => $output ? substr($output, 0, 200) : 'null'
+            ]);
             
             if ($output === null) {
+                Log::error('Python command returned null output');
                 return [
                     'success' => false,
-                    'error' => 'Gagal menjalankan script Python'
+                    'error' => 'Gagal menjalankan script Python - tidak ada output'
                 ];
             }
 
+            // Log raw output for debugging
+            Log::info('Python raw output', ['output' => $output]);
+
             // Parse output JSON
-            $result = json_decode(trim($output), true);
+            $trimmed_output = trim($output);
+            $result = json_decode($trimmed_output, true);
             
             if (json_last_error() !== JSON_ERROR_NONE) {
-                Log::error('Python script output: ' . $output);
+                Log::error('JSON decode failed', [
+                    'json_error' => json_last_error_msg(),
+                    'raw_output' => $output,
+                    'trimmed_output' => $trimmed_output
+                ]);
                 return [
                     'success' => false,
-                    'error' => 'Output Python tidak valid: ' . $output
+                    'error' => 'Output Python tidak valid JSON: ' . json_last_error_msg() . ' | Output: ' . $output
                 ];
             }
+
+            Log::info('Python prediction successful', [
+                'result_success' => $result['success'] ?? 'unknown',
+                'result_keys' => array_keys($result)
+            ]);
 
             return $result;
 
         } catch (\Exception $e) {
-            Log::error('Error running Python prediction: ' . $e->getMessage());
+            Log::error('Exception in runPythonPrediction', [
+                'message' => $e->getMessage(),
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+                'trace' => $e->getTraceAsString()
+            ]);
             return [
                 'success' => false,
                 'error' => 'Kesalahan menjalankan prediksi: ' . $e->getMessage()
