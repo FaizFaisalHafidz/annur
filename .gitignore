@@ -31,3 +31,10 @@ yarn-error.log
 /.nova
 /.vscode
 /.zed
+
+/class_diagrams/
+/sequence_diagrams/
+/usecase_specifications/
+generate_class_diagrams.py
+generate_sequence_diagrams.py
+generate_usecase_specifications.py

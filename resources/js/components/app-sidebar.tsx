@@ -13,7 +13,7 @@ import {
 import { dashboard } from '@/routes';
 import { type NavItem } from '@/types';
 import { Link, usePage } from '@inertiajs/react';
-import { Brain, FileText, LayoutGrid, Settings, Users } from 'lucide-react';
+import { Brain, FileText, LayoutGrid, Users } from 'lucide-react';
 import AppLogo from './app-logo';
 
 interface CustomProps {
@@ -61,11 +61,11 @@ export function AppSidebar() {
             href: '/laporan',
             icon: FileText,
         },
-        {
-            title: 'Pengaturan',
-            href: '/pengaturan',
-            icon: Settings,
-        },
+        // {
+        //     title: 'Pengaturan',
+        //     href: '/pengaturan',
+        //     icon: Settings,
+        // },
     ];
     
     // Menu untuk Guru BK/TU (hanya Prediksi dan Laporan)
