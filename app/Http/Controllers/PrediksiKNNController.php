@@ -473,6 +473,21 @@ class PrediksiKNNController extends Controller
             
             Log::info('Executing Python command', ['command' => $command]);
             
+            // Test if Python script can be executed manually
+            $test_command = "cd " . escapeshellarg($python_path) . " && ls -la predict_silent.py 2>&1";
+            $test_output = shell_exec($test_command);
+            Log::info('Python script file check', ['test_output' => $test_output]);
+            
+            // Test virtual environment activation
+            $venv_test_command = "cd " . escapeshellarg($python_path) . " && source .venv/bin/activate && which python 2>&1";
+            $venv_test_output = shell_exec($venv_test_command);
+            Log::info('Virtual environment test', ['venv_test_output' => $venv_test_output]);
+            
+            // Test Python script without arguments first
+            $simple_test_command = "cd " . escapeshellarg($python_path) . " && source .venv/bin/activate && python predict_silent.py 2>&1";
+            $simple_test_output = shell_exec($simple_test_command);
+            Log::info('Python script simple test', ['simple_test_output' => $simple_test_output]);
+            
             $start_time = microtime(true);
             $output = shell_exec($command . " 2>&1");
             $execution_time = microtime(true) - $start_time;
