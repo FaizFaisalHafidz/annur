@@ -439,8 +439,19 @@ class PrediksiKNNController extends Controller
             // Encode data sebagai JSON
             $json_data = json_encode($data, JSON_UNESCAPED_UNICODE);
             
-            // Jalankan script Python silent dengan virtual environment
-            $command = "source " . base_path('.venv/bin/activate') . " && cd " . escapeshellarg($python_path) . " && python3 predict_silent.py " . escapeshellarg($json_data);
+            // Jalankan script Python dengan virtual environment
+            if (app()->environment('production')) {
+                // Production environment - use virtual environment
+                $command = "cd " . escapeshellarg($python_path) . " && source .venv/bin/activate && python predict_silent.py " . escapeshellarg($json_data);
+            } else {
+                // Local environment - use virtual environment if exists, fallback to system python
+                if (file_exists($python_path . '/.venv/bin/activate')) {
+                    $command = "cd " . escapeshellarg($python_path) . " && source .venv/bin/activate && python predict_silent.py " . escapeshellarg($json_data);
+                } else {
+                    $command = "cd " . escapeshellarg($python_path) . " && python3 predict_silent.py " . escapeshellarg($json_data);
+                }
+            }
+            
             $output = shell_exec($command . " 2>&1");
             
             if ($output === null) {
