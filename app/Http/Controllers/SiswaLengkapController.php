@@ -5,8 +5,13 @@ namespace App\Http\Controllers;
 use App\Models\SiswaLengkap;
 use App\Models\NilaiAkademik;
 use App\Models\SurveiMinatBakat;
+use App\Exports\SiswaExport;
+use App\Exports\SiswaTemplateExport;
+use App\Imports\SiswaImport;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
+use Maatwebsite\Excel\Facades\Excel;
+use Illuminate\Support\Facades\DB;
 
 class SiswaLengkapController extends Controller
 {
@@ -15,40 +20,35 @@ class SiswaLengkapController extends Controller
      */
     public function index()
     {
+        // Get paginated siswa data
         $siswa = SiswaLengkap::with(['nilaiAkademik', 'surveiMinatBakat'])
             ->orderBy('created_at', 'desc')
-            ->get();
+            ->paginate(5); // 5 items per page for easier testing
 
-        // Calculate statistics
+        // Calculate statistics from all data (not just current page)
+        $allSiswa = SiswaLengkap::with(['surveiMinatBakat'])->get();
+        
         $stats = [
-            'total_siswa' => $siswa->count(),
-            'laki_laki' => $siswa->where('jenis_kelamin', 'Laki-laki')->count(),
-            'perempuan' => $siswa->where('jenis_kelamin', 'Perempuan')->count(),
-            'aktif' => $siswa->where('is_aktif', true)->count(),
-            'alumni' => $siswa->where('is_alumni', true)->count(),
+            'total_siswa' => $allSiswa->count(),
+            'laki_laki' => $allSiswa->where('jenis_kelamin', 'Laki-laki')->count(),
+            'perempuan' => $allSiswa->where('jenis_kelamin', 'Perempuan')->count(),
+            'aktif' => $allSiswa->where('is_aktif', true)->count(),
+            'alumni' => $allSiswa->where('is_alumni', true)->count(),
             'rencana_kuliah' => [
-                'iya' => $siswa->filter(function($s) {
+                'iya' => $allSiswa->filter(function($s) {
                     return $s->surveiMinatBakat && $s->surveiMinatBakat->rencana_kuliah === 'Iya';
                 })->count(),
-                'tidak' => $siswa->filter(function($s) {
+                'tidak' => $allSiswa->filter(function($s) {
                     return $s->surveiMinatBakat && $s->surveiMinatBakat->rencana_kuliah === 'Tidak';
                 })->count(),
-                'masih_ragu' => $siswa->filter(function($s) {
+                'masih_ragu' => $allSiswa->filter(function($s) {
                     return $s->surveiMinatBakat && $s->surveiMinatBakat->rencana_kuliah === 'Masih ragu';
                 })->count(),
             ],
         ];
 
         return Inertia::render('siswa/index', [
-            'siswa' => [
-                'data' => $siswa->values(),
-                'meta' => [
-                    'total' => $siswa->count(),
-                    'per_page' => 10,
-                    'current_page' => 1,
-                    'last_page' => ceil($siswa->count() / 10),
-                ]
-            ],
+            'siswa' => $siswa,
             'stats' => $stats,
         ]);
     }
@@ -418,5 +418,65 @@ class SiswaLengkapController extends Controller
 
         return redirect()->route('siswa.index')
             ->with('success', "Data siswa {$nama} berhasil dihapus.");
+    }
+
+    /**
+     * Export siswa data to Excel
+     */
+    public function export()
+    {
+        $fileName = 'data-siswa-' . date('Y-m-d-His') . '.xlsx';
+        
+        return Excel::download(new SiswaExport, $fileName);
+    }
+
+    /**
+     * Download Excel template for import
+     */
+    public function downloadTemplate()
+    {
+        $fileName = 'template-import-siswa.xlsx';
+        
+        return Excel::download(new SiswaTemplateExport, $fileName);
+    }
+
+    /**
+     * Import siswa data from Excel
+     */
+    public function import(Request $request)
+    {
+        $request->validate([
+            'file' => 'required|mimes:xlsx,xls,csv|max:2048'
+        ]);
+
+        try {
+            DB::beginTransaction();
+
+            $import = new SiswaImport();
+            Excel::import($import, $request->file('file'));
+            
+            $results = $import->getResults();
+            
+            DB::commit();
+
+            $message = "Import berhasil! {$results['success_count']} data siswa berhasil diimpor.";
+            
+            if ($results['total_errors'] > 0) {
+                $message .= " {$results['total_errors']} data mengalami error.";
+                
+                return redirect()->route('siswa.index')
+                    ->with('warning', $message)
+                    ->with('import_errors', $results['errors']);
+            }
+
+            return redirect()->route('siswa.index')
+                ->with('success', $message);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            
+            return redirect()->route('siswa.index')
+                ->with('error', 'Terjadi kesalahan saat mengimpor data: ' . $e->getMessage());
+        }
     }
 }

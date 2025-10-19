@@ -1,7 +1,21 @@
+import { Button } from '@/components/ui/button';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import AppLayout from '@/layouts/app-layout';
 import { SharedData } from '@/types';
-import { Head, Link } from '@inertiajs/react';
-import { BookOpen, GraduationCap, Plus, TrendingUp, Users } from 'lucide-react';
+import { Head, Link, useForm } from '@inertiajs/react';
+import { BookOpen, Download, FileText, GraduationCap, Plus, TrendingUp, Upload, Users } from 'lucide-react';
+import { useState } from 'react';
+import { toast } from 'sonner';
 
 interface SiswaLengkap {
   id: number;
@@ -19,6 +33,17 @@ interface SiswaLengkap {
 interface Props extends SharedData {
   siswa: {
     data: SiswaLengkap[];
+    links: Array<{
+      url: string | null;
+      label: string;
+      active: boolean;
+    }>;
+    current_page: number;
+    last_page: number;
+    per_page: number;
+    total: number;
+    from: number;
+    to: number;
   };
   stats: {
     total_siswa: number;
@@ -31,6 +56,43 @@ interface Props extends SharedData {
 }
 
 const DataSiswa = ({ auth, siswa, stats }: Props) => {
+  const [importDialogOpen, setImportDialogOpen] = useState(false);
+  const { data, setData, post, processing, errors, reset } = useForm<{
+    file: File | null;
+  }>({
+    file: null,
+  });
+
+  const handleImport = (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!data.file) {
+      toast.error('Silakan pilih file Excel terlebih dahulu');
+      return;
+    }
+
+    post('/siswa-import', {
+      onSuccess: () => {
+        setImportDialogOpen(false);
+        reset();
+        toast.success('Data siswa berhasil diimpor');
+      },
+      onError: () => {
+        toast.error('Terjadi kesalahan saat mengimpor data');
+      },
+    });
+  };
+
+  const handleExport = () => {
+    window.open('/siswa-export', '_blank');
+    toast.success('Export data siswa dimulai...');
+  };
+
+  const handleDownloadTemplate = () => {
+    window.open('/siswa-template', '_blank');
+    toast.success('Download template dimulai...');
+  };
+
   return (
     <AppLayout>
       <Head title="Data Siswa" />
@@ -45,13 +107,72 @@ const DataSiswa = ({ auth, siswa, stats }: Props) => {
                   Kelola data lengkap siswa dengan nilai akademik dan survei minat bakat
                 </p>
               </div>
-              <Link
-                href="/siswa/create"
-                className="inline-flex items-center px-4 py-2 bg-green-800 hover:bg-green-900 text-white rounded-md shadow-sm text-sm font-medium"
-              >
-                <Plus className="h-4 w-4 mr-2" />
-                Tambah Siswa
-              </Link>
+              <div className="flex space-x-3">
+                {/* Import Button */}
+                <Dialog open={importDialogOpen} onOpenChange={setImportDialogOpen}>
+                  <DialogTrigger asChild>
+                    <Button variant="outline" size="sm">
+                      <Upload className="h-4 w-4 mr-2" />
+                      Import Excel
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent className="sm:max-w-md">
+                    <DialogHeader>
+                      <DialogTitle>Import Data Siswa</DialogTitle>
+                      <DialogDescription>
+                        Upload file Excel dengan data siswa, nilai akademik, dan survei minat bakat
+                      </DialogDescription>
+                    </DialogHeader>
+                    <form onSubmit={handleImport} className="space-y-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="file">File Excel (.xlsx, .xls, .csv)</Label>
+                        <Input
+                          id="file"
+                          type="file"
+                          accept=".xlsx,.xls,.csv"
+                          onChange={(e) => setData('file', e.target.files?.[0] || null)}
+                          required
+                        />
+                        {errors.file && (
+                          <p className="text-sm text-red-600">{errors.file}</p>
+                        )}
+                      </div>
+                      <DialogFooter>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          onClick={() => setImportDialogOpen(false)}
+                        >
+                          Batal
+                        </Button>
+                        <Button type="submit" disabled={processing}>
+                          {processing ? 'Mengimpor...' : 'Import'}
+                        </Button>
+                      </DialogFooter>
+                    </form>
+                  </DialogContent>
+                </Dialog>
+
+                {/* Export Button */}
+                <Button variant="outline" size="sm" onClick={handleExport}>
+                  <Download className="h-4 w-4 mr-2" />
+                  Export Excel
+                </Button>
+
+                {/* Template Button */}
+                <Button variant="outline" size="sm" onClick={handleDownloadTemplate}>
+                  <FileText className="h-4 w-4 mr-2" />
+                  Download Template
+                </Button>
+
+                {/* Add Student Button */}
+                <Link href="/siswa/create">
+                  <Button size="sm">
+                    <Plus className="h-4 w-4 mr-2" />
+                    Tambah Siswa
+                  </Button>
+                </Link>
+              </div>
             </div>
           </div>
 
@@ -222,6 +343,67 @@ const DataSiswa = ({ auth, siswa, stats }: Props) => {
                     ))}
                   </tbody>
                 </table>
+              </div>
+              
+              {/* Pagination Info - Always show */}
+              <div className="px-6 py-4 border-t border-gray-200">
+                <div className="flex items-center justify-between">
+                  <div className="text-sm text-gray-500">
+                    Menampilkan {siswa.from || 1} hingga {siswa.to || siswa.data.length} dari {siswa.total || siswa.data.length} data siswa
+                    {siswa.last_page && siswa.last_page > 1 && (
+                      <span className="ml-2">
+                        (Halaman {siswa.current_page || 1} dari {siswa.last_page})
+                      </span>
+                    )}
+                  </div>
+                  
+                  {/* Pagination Navigation - Only show if more than 1 page */}
+                  {siswa.links && siswa.last_page > 1 && (
+                    <div className="flex items-center space-x-2">
+                      {siswa.links.map((link, index) => {
+                        if (link.label === '&laquo; Previous' || link.label === 'Next &raquo;') {
+                          return (
+                            <Link
+                              key={index}
+                              href={link.url || '#'}
+                              className={`px-3 py-2 text-sm rounded-md border ${
+                                link.url
+                                  ? 'border-gray-300 text-gray-700 hover:bg-gray-50'
+                                  : 'border-gray-200 text-gray-400 cursor-not-allowed'
+                              }`}
+                              preserveState
+                            >
+                              {link.label === '&laquo; Previous' ? 'Sebelumnya' : 'Selanjutnya'}
+                            </Link>
+                          );
+                        }
+                        
+                        if (link.label === '...') {
+                          return (
+                            <span key={index} className="px-3 py-2 text-sm text-gray-500">
+                              ...
+                            </span>
+                          );
+                        }
+                        
+                        return (
+                          <Link
+                            key={index}
+                            href={link.url || '#'}
+                            className={`px-3 py-2 text-sm rounded-md border ${
+                              link.active
+                                ? 'border-blue-500 bg-blue-50 text-blue-600 font-medium'
+                                : 'border-gray-300 text-gray-700 hover:bg-gray-50'
+                            }`}
+                            preserveState
+                          >
+                            {link.label}
+                          </Link>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
           </div>

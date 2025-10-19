@@ -20,6 +20,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/siswa/{siswa}/survei', [SiswaLengkapController::class, 'showSurvei'])->name('siswa.survei');
     Route::post('/siswa/{siswa}/survei', [SiswaLengkapController::class, 'storeSurvei'])->name('siswa.survei.store');
     
+    // Routes import/export siswa
+    Route::get('/siswa-export', [SiswaLengkapController::class, 'export'])->name('siswa.export');
+    Route::get('/siswa-template', [SiswaLengkapController::class, 'downloadTemplate'])->name('siswa.template');
+    Route::post('/siswa-import', [SiswaLengkapController::class, 'import'])->name('siswa.import');
+    
     // Routes prediksi KNN
     Route::resource('prediksi', PrediksiKNNController::class);
     Route::get('/prediksi-knn', [PrediksiKNNController::class, 'create'])->name('prediksi.create');
